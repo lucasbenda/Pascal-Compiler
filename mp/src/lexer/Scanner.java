@@ -3,15 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package mp;
+package lexer;
 
-import mp.Token;
+//import lexer.Token;
 
 /**
  *
  * @author Erigon
  */
-public class Scanner extends Token {
+public class Scanner {
     
     public Token nextToken(){
        if (bit[] == char){
