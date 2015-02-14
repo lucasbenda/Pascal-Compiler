@@ -11,6 +11,30 @@ package mp;
  * @author Erigon
  */
 public class Token {
+    private String token;
+    private int row,colom;
+    private String type;
     
+    public Token(String token, int r, int c, String t) {
+        this.token = token;
+        this.row = r;
+        this.colom = c;
+        this.type = t;
+    }
+    
+    public String getToken(){
+        return token;
+    }
+    
+    public String getType() {
+        return type;
+    }
+    
+    public int getRow() {
+        return row;
+    }
+    public int getColom(){
+        return colom;
+    }
     
 }
