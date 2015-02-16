@@ -24,7 +24,7 @@ public class Mp {
         try {
             //BufferedReader in = new BufferedReader(new FileReader("K:\\location\\inputfile.txt"));
             String text[][] = create2DIntMatrixFromFile("C:\\Users\\Erigon\\Desktop\\hi.txt");
-            scanner.nextToken(text);
+            scanner.getToken(text);
             /*
             try{
             Scanner input = new Scanner(new File("file.txt"));
