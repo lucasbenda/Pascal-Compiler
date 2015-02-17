@@ -12,75 +12,61 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author Erigon
+ * @author Eric, Anderw, Karl
  */
 public class Mp {
 
     /**
      * @param args the command line arguments
      */
+    
+    static int row = 0;
+    static int colom =0;
+    static String[][] matrix = {{""}, {""}};
+    
     public static void main(String[] args) {
-        Scan scanner = new Scan();
+        String[][] text = new String[0][0];
+
         try {
-            //BufferedReader in = new BufferedReader(new FileReader("K:\\location\\inputfile.txt"));
-            String text[][] = create2DIntMatrixFromFile("C:\\Users\\Erigon\\Desktop\\hi.txt");
-            scanner.getToken(text);
-            /*
-            try{
-            Scanner input = new Scanner(new File("file.txt"));
-            while(input.hasNextLine()){
-            String message = input.nextLine();
-            //message = message.replace(" ", "");
-            String t[] = message.split(" ");
-            
-            
-            }
-            input.close();
-            }
-            catch(Exception e){}*/
-            System.out.println(text[0][5]);
-        } catch (Exception ex) {
+            text = create2DIntMatrixFromFile("C:\\Users\\Erigon\\Desktop\\hi.txt");
+        } 
+        catch (Exception ex) {
             Logger.getLogger(Mp.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        Scan scanner = new Scan();
+        Token word = scanner.getToken(text);
+        while (word!= null){
+                System.out.println(word.type.toString()+"  "+ word.row+"  "+ word.colomn+"  "+ word.lexeme);
+                word = scanner.getToken(text);
+        }
     }
+    
+    
+    
+    
     public static String[][] create2DIntMatrixFromFile(String filename) throws Exception {
-    String[][] matrix = {{""}, {""}};
+ 
 
-    File inFile = new File(filename);
-    Scanner in = new Scanner(inFile);
-    
+        File inFile = new File(filename);
+        Scanner in = new Scanner(inFile);
 
-    int row = 0;
-    int colom =0;
-    
-    while(in.hasNextLine()){
-        String temp = in.nextLine();
-        colom++;
-    }
-    
-    matrix = new String[colom][1];
-    
-    in.close();    
-    
-    in = new Scanner(inFile);
-    
-    for(int i=0; i < colom; i++){
-      matrix[i] = in.nextLine().trim().split("\\s+");
-    }
-    in.close();
+        while(in.hasNextLine()){
+            String temp = in.nextLine();
+            colom++;
+        }
 
-    
-    /*
-    in = new Scanner(inFile);
+        matrix = new String[colom][1];
 
-    int lineCount = 0;
-    while (in.hasNextLine()) {
-      String[] currentLine = in.nextLine().trim().split("\\s+"); 
-         for (int i = 0; i < currentLine.length; i++) {
-            matrix[lineCount][i] = currentLine[i];    
-                }
-      lineCount++;
-     }           */                      
+        in.close();    
+
+        in = new Scanner(inFile);
+
+        for(int i=0; i < colom; i++){
+          matrix[i] = in.nextLine().trim().split("\\s+");
+        }
+        in.close();
+                      
      return matrix;
     }
 }

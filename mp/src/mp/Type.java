@@ -7,19 +7,19 @@ package mp;
 
 /**
  *
- * @author Erigon
+ * @author Eric, Andrew Karl
  */
 public enum Type {
 	// Reserved
 	MP_AND,
 	MP_BEGIN,
-	MP_BOOLEAN, //
+	MP_BOOLEAN, 
 	MP_DIV,
 	MP_DO,
 	MP_DOWNTO,
 	MP_ELSE,
 	MP_END,
-	MP_FALSE, //
+	MP_FALSE, 
 	MP_FIXED,
 	MP_FLOAT,
 	MP_FOR,
@@ -33,16 +33,16 @@ public enum Type {
 	MP_PROGRAM,
 	MP_READ,
 	MP_REPEAT,
-	MP_STRING, //
+	MP_STRING, 
 	MP_THEN,
-	MP_TRUE, //
+	MP_TRUE, 
 	MP_TO,
 	MP_TYPE,
 	MP_UNTIL,
 	MP_VAR,
 	MP_WHILE,
 	MP_WRITE,
-	MP_WRITELN, //
+	MP_WRITELN, 
 
 	// Literals
 	MP_IDENTIFIER,

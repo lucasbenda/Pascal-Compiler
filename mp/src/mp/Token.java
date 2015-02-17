@@ -8,7 +8,7 @@ package mp;
 
 /**
  *
- * @author Erigon
+ * @author Eric, Andew, Karl
  */
 public class Token {
     public String lexeme;
