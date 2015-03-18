@@ -40,6 +40,11 @@ public class Mp {
                 System.out.println(word.type.toString()+"  "+ word.row+"  "+ word.colomn+"  "+ word.lexeme);
                 word = scanner.getToken(text);
         }
+        
+        System.out.println("\n End of Scanner output \n");
+        
+        
+        Parser par = new Parser(text);
     }
     
     

@@ -140,14 +140,14 @@ public class Scan{
         switch (s.charAt(0)) {
 		case '<':
 			tok.type = Type.MP_LTHAN;
-                        if(s.length()>0)
+                        if(s.length()>1)
 			switch (s.charAt(1)) {
                             case '>': tok.type = Type.MP_NEQUAL; break;
                             case '=': tok.type = Type.MP_LEQUAL; break;
 			} break;
 		case '>':
 			tok.type = Type.MP_GTHAN;
-                        if(s.length()>0)
+                        if(s.length()>1)
 			switch (s.charAt(1)) {
                             case '=': tok.type = Type.MP_GEQUAL; break;
 			} break;

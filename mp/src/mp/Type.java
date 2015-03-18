@@ -77,5 +77,13 @@ public enum Type {
 	MP_PLUS,
 	MP_MINUS,
 	MP_TIMES,
-	MP_COLON
+	MP_COLON,
+        
+        //Maybe keep these for the parser. Not actually token types
+            Integer,
+            String,
+            Boolean,
+            Float
+            
+            
 }
