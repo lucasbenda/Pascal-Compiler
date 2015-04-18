@@ -6,8 +6,9 @@
             <file>file:/C:/Users/Erigon/Desktop/Pascal-Compiler/mp/src/mp/Token.java</file>
             <file>file:/C:/Users/Erigon/Desktop/Pascal-Compiler/mp/src/mp/Parser.java</file>
             <file>file:/C:/Users/Erigon/Desktop/Pascal-Compiler/mp/src/mp/Type.java</file>
-            <file>file:/C:/Users/Erigon/Desktop/Pascal-Compiler/mp/src/mp/Scan.java</file>
             <file>file:/C:/Users/Erigon/Desktop/Pascal-Compiler/mp/src/mp/Mp.java</file>
+            <file>file:/C:/Users/Erigon/Desktop/Pascal-Compiler/mp/src/mp/Scan.java</file>
+            <file>file:/C:/Users/Erigon/Desktop/Pascal-Compiler/mp/src/mp/SymbolTable.java</file>
         </group>
     </open-files>
 </project-private>

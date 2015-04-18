@@ -35,7 +35,11 @@ public class Scan{
                     t = r; x--; lr = r;
                 }
                 
-                if (containsChar(letter, t.charAt(0))){
+                
+                if(t.length() == 0){
+                    
+                }
+                else if (containsChar(letter, t.charAt(0))){
                     Token id = identifier(t);
                     id.colomn = x;
                     id.row = y;
@@ -69,7 +73,12 @@ public class Scan{
 
             }
         }
-        return null;
+        Token end = new Token();
+        end.lexeme = null;
+        end.type = Type.MP_EOF;
+        end.row = n.length;
+        end.colomn = x;
+        return end;
     }  
     
     
@@ -153,7 +162,7 @@ public class Scan{
 			} break;
 		case ':':
 			tok.type = Type.MP_COLON;
-                        if(s.length()>0)
+                        if(s.length()>1)
 			switch (s.charAt(1)) {
                             case '=': tok.type = Type.MP_ASSIGN; break;
 			} break;
@@ -305,23 +314,23 @@ public class Scan{
     private Token string() {
         Token tok = new Token();
         int yMax =doc.length;
-		while ( y< yMax ) {
-                    while(x < doc[y].length){
-				if (containsChar(doc[y][x], '\'')) {
-					tok.type = Type.MP_STRING_LIT;
-                                        tok.lexeme = tok.lexeme +" "+ doc[y][x];
-                                        tok.lexeme = alterStringContents(tok.lexeme);
-					return tok;
-				} 
-                                if(tok.lexeme !=null)
-                                    tok.lexeme = tok.lexeme+ " " +doc[y][x];
-                                else tok.lexeme = doc[y][x];
-                                x++;
-			}
-                    y++;
-		}
-		tok.type =Type.MP_RUN_STRING;
-		return tok;
+            while ( y< yMax ) {
+                while(x < doc[y].length){
+                    if (containsChar(doc[y][x], '\'')) {
+                        tok.type = Type.MP_STRING_LIT;
+                        tok.lexeme = tok.lexeme +" "+ doc[y][x];
+                        tok.lexeme = alterStringContents(tok.lexeme);
+                        return tok;
+                    } 
+                    if(tok.lexeme !=null)
+                        tok.lexeme = tok.lexeme+ " " +doc[y][x];
+                    else tok.lexeme = doc[y][x];
+                    x++;
+                }
+                y++;
+            }
+            tok.type =Type.MP_RUN_STRING;
+            return tok;
                
 	}
     private String alterStringContents(String curLexemeContent){

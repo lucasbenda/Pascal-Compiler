@@ -36,7 +36,7 @@ public class Mp {
         
         Scan scanner = new Scan();
         Token word = scanner.getToken(text);
-        while (word!= null){
+        while (word.getLexeme()!= null){
                 System.out.println(word.type.toString()+"  "+ word.row+"  "+ word.colomn+"  "+ word.lexeme);
                 word = scanner.getToken(text);
         }
