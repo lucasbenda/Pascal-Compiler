@@ -22,7 +22,7 @@ public class Analysis {
 	 * Generates code to write newline
 	 */
 	public void genWriteLnStmt() {
-		System.out.print("wrtln #\"\"\n");
+		System.out.print("wrtln #\'\'\n");
 	}
         
         /*
