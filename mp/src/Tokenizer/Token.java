@@ -10,6 +10,8 @@ public class Token {
     protected String token;
     protected int lineNum;
     protected int colNum;
+    protected String type;
+    protected String kind;
     
     public Token(String in_lex, String in_token, int lnum, int colnum){
         lexeme = in_lex;
@@ -23,6 +25,22 @@ public class Token {
         token = "EMPTY_TOKEN";
         lineNum = 0;
         colNum = 0;
+        type = "";
+    }
+    public void setType(String in){
+        type = in;
+    }
+    
+    public String getType(){
+        return type;
+    }
+    
+    public void setKind(String in){
+        kind = in;
+    }
+    
+    public String getKind(){
+        return kind;
     }
     
     public String getLexeme(){
