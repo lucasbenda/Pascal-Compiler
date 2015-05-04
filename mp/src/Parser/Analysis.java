@@ -12,23 +12,17 @@ public class Analysis {
     public Analysis() {
     }
 
-    /*
-     * generates wrts
-     */
     public void genWriteStmt() {
         System.out.print("wrts\n");
     }
 
     /**
-     * Pushes machinecode for newline
+     * Generates code to write newline
      */
     public void genWriteLnStmt() {
         System.out.print("wrtln #\'\'\n");
     }
 
-    /*
-     * generates a read statement
-     */
     public void genReadStmt(Row paramRec) {
 
         if (paramRec != null) {
@@ -44,7 +38,7 @@ public class Analysis {
                     rdOp = "rds ";
                     break;
                 default:
-
+                    //this.semanticError("Unsupported parameter type supplied for read");
                     break;
             }
             //String dereference = var.mode == Symbol.ParameterMode.REFERENCE ? "@" : "";
@@ -211,7 +205,7 @@ public class Analysis {
             this.semanticError("Incompatible types encountered for assignement statement: " + id.getType() + " := " + expr.getType());
         }
         Row var = NonTerminals.symTab.findVariable(id.getLexeme());
-        //String dereference = var.mode == Symbol.ParameterMode.REFERENCE ? "@" : "";
+		//String dereference = var.mode == Symbol.ParameterMode.REFERENCE ? "@" : "";
         // assuming parser will catch undeclared id's so no need to null check
         output.append("pop " + " " + var.getOffset() + "(D" + var.getNestingLevel() + ")\n");
     }
@@ -229,24 +223,10 @@ public class Analysis {
         output.append("pop -2(SP)\n");		// then put it back where it was
     }
 
-    public void genPushLiteral(Token literalRec, Token signRec) {
-        String literal;
-        if(literalRec.getType().equals("string")){
-            literal = "\"" + literalRec.lexeme + "\"";
-        } else {
-            literal = literalRec.lexeme;
-        }
-            //String literal = literalRec.getType() == Symbol.Type.STRING ? "\"" + literalRec.lexeme + "\"" : literalRec.lexeme;
-            if (signRec.negative) {
-                literal = "-" + literal;
-            }
-            output.append("push #" + literal + "\n");	// Push primitive literal       
-    }
-
     public void genPushId(Token idRec, Token signRec) {
         Row var = NonTerminals.symTab.findVariable(idRec.getLexeme());
         if (mode == Symbol.ParameterMode.REFERENCE && var.mode == Symbol.ParameterMode.REFERENCE) {
-            // if a reference mode formal parameter is used as an actual reference mode parameter 
+			// if a reference mode formal parameter is used as an actual reference mode parameter 
             // in a function call inside of a function, we have already calculated its address 
             output.append("push " + var.offset + "(D" + var.nestLevel + ")\n");
         } else if (mode == Symbol.ParameterMode.REFERENCE) {
