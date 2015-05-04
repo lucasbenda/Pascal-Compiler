@@ -1,0 +1,85 @@
+mov SP D1 SP
+add SP 4 SP
+push  1(D1)
+push #0
+push #1
+pop  2(D1)
+push  1(D1)
+push  1(D1)
+push #1
+subs
+Incompatible types encountered for expression: integer * Incompatible types encountered for assignement statement: integer := pop  2(D1)
+hlt
+mov SP D1 SP
+add SP 3 SP
+push #-50
+pop  2(D1)
+push  1(D1)
+push  2(D1)
+push  1(D1)
+wrts
+push #"' '"
+wrts
+push  1(D1)
+push #1
+subs
+pop  1(D1)
+push #"''"
+wrts
+wrtln #''
+hlt
+mov SP D1 SP
+add SP 2 SP
+push #1
+push #2.0
+push -2(SP)
+castsf
+pop -2(SP)
+mulsf
+push #4
+castsf
+divsf
+push #2
+castsf
+addsf
+pop  1(D1)
+push #"'From procedure otherthing is: '"
+wrts
+push  1(D1)
+wrts
+wrtln #''
+hlt
+mov SP D4 SP
+add SP 2 SP
+push #"'I am super imbedded and awesome. B is '"
+wrts
+push  1(D4)
+wrts
+wrtln #''
+hlt
+mov SP D3 SP
+add SP 3 SP
+push  1(D3)
+hlt
+mov SP D2 SP
+add SP 3 SP
+push  1(D2)
+hlt
+mov SP D1 SP
+add SP 7 SP
+push #"'trying the whole imbedded thing'"
+wrts
+push  3(D1)
+wrts
+wrtln #''
+push  1(D1)
+push  2(D1)
+addsf
+Incompatible types encountered for assignement statement: integer := floatpop  5(D1)
+push  5(D1)
+push #"'This string was returned as a value'"
+pop  4(D1)
+hlt
+mov SP D1 SP
+add SP 2 SP
+push #5

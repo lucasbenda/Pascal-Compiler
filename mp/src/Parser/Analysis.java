@@ -2,6 +2,9 @@ package Parser;
 
 import SymbolTable.*;
 import Tokenizer.Token;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 
 /**
  *
@@ -9,47 +12,63 @@ import Tokenizer.Token;
  */
 public class Analysis {
 
-    public Analysis() {
+    PrintStream output;
+    int stackSize;
+    
+    public Analysis() throws FileNotFoundException {     
+        this.output = new PrintStream(new File("machinecode.txt"));
+        stackSize = 0;
+
     }
 
+    public void close() {
+        this.output.close();
+
+    }
     /*
      * generates wrts
      */
+
     public void genWriteStmt() {
-        System.out.print("wrts\n");
+        output.append("wrts\n");
     }
 
     /**
-     * Pushes machinecode for newline
+     * Pushes machine code for newline
      */
     public void genWriteLnStmt() {
-        System.out.print("wrtln #\'\'\n");
+        output.append("wrtln #\'\'\n");
     }
 
     /*
      * generates a read statement
      */
-    public void genReadStmt(Row paramRec) {
-
+    public void genReadStmt(Token paramRec) {
         if (paramRec != null) {
-            String rdOp = null;
-            switch (paramRec.getType()) {
-                case "integer":
-                    rdOp = "rd ";
-                    break;
-                case "float":
-                    rdOp = "rdf ";
-                    break;
-                case "string":
-                    rdOp = "rds ";
-                    break;
-                default:
+            Row transfer = NonTerminals.symTab.findVariable(paramRec.lexeme);
+            Token var = new Token();
+            rowToToken(transfer, var);
 
-                    break;
+            if (var != null) {
+                String rdOp = null;
+                switch (paramRec.getType()) {
+                    case "integer":
+                        rdOp = "rd ";
+                        break;
+                    case "float":
+                        rdOp = "rdf ";
+                        break;
+                    case "string":
+                        rdOp = "rds ";
+                        break;
+                    default:
+
+                        break;
+                }
+                //String dereference = var.mode == Symbol.ParameterMode.REFERENCE ? "@" : "";
+                output.append(rdOp + " " + var.offset + "(D" + var.nestingLevel + ")\n");
+                //output.append(paramRec.getLexeme() + "\n");
             }
-            //String dereference = var.mode == Symbol.ParameterMode.REFERENCE ? "@" : "";
-            System.out.println(rdOp + " " + paramRec.getOffset() + "(D" + paramRec.getNestingLevel() + ")\n");
-            System.out.println(paramRec.getID());
         }
 
     }
@@ -126,7 +145,7 @@ public class Analysis {
                 break;
         }
         if (booleanOp && leftRec.getType().equals("boolean") && rightRec.getType().equals("boolean")) {
-            System.out.println(operation + "\n");
+            output.append(operation + "\n");
             resultRec.setType(leftRec.getType());
         } // disallow arithmetic/compare operations on boolean and string types
         else if (!leftRec.getType().equals("boolean") && !leftRec.getType().equals("string")) {
@@ -142,7 +161,7 @@ public class Analysis {
                     if (integerDiv) {
                         // I'm not sure exactly what the semantics are for int division
                         // on floats, I assume you just truncate values, then divide
-                        System.out.println("castsi\n");	// cast RHS to integer
+                        output.append("castsi\n");	// cast RHS to integer
                         genCastLeftHandSide("integer");	// cast LHS to integer
                         resultRec.setType("integer");	// set expression result to integer
                     } else // not integer div
@@ -236,7 +255,6 @@ public class Analysis {
         } else {
             literal = literalRec.lexeme;
         }
-        //String literal = literalRec.getType() == Symbol.Type.STRING ? "\"" + literalRec.lexeme + "\"" : literalRec.lexeme;
         if (signRec.negative) {
             literal = "-" + literal;
         }
@@ -245,20 +263,11 @@ public class Analysis {
 
     public void genPushId(Token idRec, Token signRec) {
         Row var = NonTerminals.symTab.findVariable(idRec.getLexeme());
-        if (mode == Symbol.ParameterMode.REFERENCE && var.mode == Symbol.ParameterMode.REFERENCE) {
-            // if a reference mode formal parameter is used as an actual reference mode parameter 
-            // in a function call inside of a function, we have already calculated its address 
-            output.append("push " + var.offset + "(D" + var.nestLevel + ")\n");
-        } else if (mode == Symbol.ParameterMode.REFERENCE) {
-            output.append("push D" + var.getNestingLevel() + "\n");
-            output.append("push #" + var.getOffset() + "\n");
-            output.append("adds\n");	// calculate variable address
-        } else {
-            String dereference = var.mode == Symbol.ParameterMode.REFERENCE ? "@" : "";	// if ref mode, dereference
-            output.append("push " + dereference + var.offset + "(D" + var.nestLevel + ")\n");
-            if (signRec.negative) {
-                this.genNegOp(idRec);
-            }
+
+        output.append("push " + " " + var.getOffset() + "(D" + var.getNestingLevel() + ")\n");
+        if (signRec.negative) {
+            this.genNegOp(idRec);
+            //}
         }
     }
 
@@ -295,13 +304,6 @@ public class Analysis {
         }
     }
 
-//    public void genCallSetup(Token funProcSym) {
-//        if (funProcSym.getKind().equals("function")) {
-//            output.append("add SP #" + Symbol.Type.INTEGER.size + " SP ; return value\n");// save space for return value for functions
-//        }
-//        output.append("add SP #" + Symbol.Type.INTEGER.size + " SP ; display register\n");	// save space for callee's display register
-//        // parameters are pushed (in order) by expression
-//    }
 
     public void copy(Token existing, Token copy) {
         copy.setType(existing.getType());
@@ -312,15 +314,27 @@ public class Analysis {
      * not sure if this will be needed yet
      */
     public void rowToToken(Row in, Token out) {
+        out.setType(in.getType());
         out.setKind(in.getKind());
-        out.setType(in.getKind());
+        out.size = in.getSize();
         out.lexeme = in.getID();
-
+        out.offset = in.getOffset();
+        out.nestingLevel = in.getNestingLevel();
 
 
     }
 
+    public void beginProgDec(){
+        output.append("mov SP D" + NonTerminals.symTab.getNestingLevel() + " SP\n");
+        output.append("add SP " + NonTerminals.symTab.getSize() + " SP\n");
+        
+    }
+    public void endProgDec(){
+        output.append("hlt\n");
+    }
+    
+
     private void semanticError(String errorMsg) {
-        System.out.println(errorMsg);
+        output.append(errorMsg);
     }
 }

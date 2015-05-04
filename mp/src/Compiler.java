@@ -11,7 +11,7 @@ public class Compiler {
 
 	public static void main(String[] args) throws java.io.IOException
 	{
-		File testFile = new File("test/Test_Program_2.mp");
+		File testFile = new File("test/Test_Program_1.mp");
 		
 		
 		MicroPascalScanner sc = new MicroPascalScanner(testFile);

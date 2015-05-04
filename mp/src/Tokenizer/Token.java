@@ -13,6 +13,7 @@ public class Token {
     protected String type;
     protected String kind;
     public boolean negative = false;
+    public int size, offset, variableOffset, nestingLevel;
     
     public Token(String in_lex, String in_token, int lnum, int colnum){
         lexeme = in_lex;

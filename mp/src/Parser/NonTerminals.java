@@ -2,6 +2,7 @@ package Parser;
 
 import SymbolTable.*;
 import Tokenizer.Token;
+import java.io.FileNotFoundException;
 import java.util.LinkedList;
 
 public class NonTerminals {
@@ -10,7 +11,7 @@ public class NonTerminals {
     static LinkedList<Token> tokens;
     static Token LATok;
     static String Lookahead;
-    static Analysis analyzer = new Analysis();
+    static Analysis analyzer;
     //Variables for symbol table making
     static SymbolTable symTab;
     static String lastID;//Jon: to store last ID
@@ -80,12 +81,19 @@ public class NonTerminals {
     }
 
     public static void start(LinkedList<Token> list) {
+        try {
+            analyzer = new Analysis();
+        } catch (FileNotFoundException ex) {
+            System.out.println("could not create new file");
+        }
+
         tokens = list;
         tokindex = 1;
         LATok = tokens.getFirst();
         lastTok = LATok;
         Lookahead = LATok.getToken();
         systemGoal();
+        analyzer.close();
     }
 
     public static void systemGoal() {
@@ -510,7 +518,9 @@ public class NonTerminals {
         switch (Lookahead) {
             case "MP_BEGIN":
                 System.out.println(" (#29)"); // Rule #29
+                analyzer.beginProgDec();
                 compoundStatement();
+                analyzer.endProgDec();
                 break;
             default: // syntaxError
                 syntaxError();
@@ -734,13 +744,14 @@ public class NonTerminals {
             System.out.printf("" + String.format("%1$" + LAPad + "s", Lookahead) + " ->" + String.format("%1$" + (indent++ * 2 + 1) + "s", "")
                     + "ReadParameter");
         }
-        Row readParamRec;
+        Token readParamRec = new Token();
+
         switch (Lookahead) {
             case "MP_IDENTIFIER":
 
                 System.out.println(" (#48)"); // Rule #48
-                readParamRec = symTab.findVariable(LATok.lexeme);
-                variableIdentifier();
+                variableIdentifier(readParamRec);
+
                 analyzer.genReadStmt(readParamRec);
 
                 break;
@@ -845,7 +856,7 @@ public class NonTerminals {
         Token exprRec = new Token();
 
         Row assignVarRow = symTab.findVariable(assignVar.getLexeme());
-        idenRec.setType(assignVarRow.getType());
+        analyzer.rowToToken(assignVarRow, idenRec);
 
         switch (Lookahead) {
             case "MP_ASSIGN"://both rules are the same
@@ -853,10 +864,7 @@ public class NonTerminals {
                 match("MP_ASSIGN");
 
                 expression(exprRec);
-
                 analyzer.genAssignStmt(idenRec, exprRec);
-
-
 
                 break;
             default: // syntaxError OR Empty-String
@@ -1002,11 +1010,13 @@ public class NonTerminals {
             System.out.printf("" + String.format("%1$" + LAPad + "s", Lookahead) + " ->" + String.format("%1$" + (indent++ * 2 + 1) + "s", "")
                     + "ControlVariable");
         }
+        Token idRec = new Token();
+
         switch (Lookahead) {
             case "MP_IDENTIFIER":
                 System.out.println(" (#62)"); // Rule #62
 
-                variableIdentifier();
+                variableIdentifier(idRec);
                 break;
 
             default: // syntaxError OR Empty-String
@@ -1312,18 +1322,18 @@ public class NonTerminals {
         Token signRec = new Token();
 
         switch (Lookahead) {
-            case "MP_FALSE":
-            case "MP_NOT":
-            case "MP_TRUE":
+            case "MP_LPAREN":
+            case "MP_PLUS":
+            case "MP_MINUS":
             case "MP_IDENTIFIER":
             case "MP_INTEGER_LIT":
-            case "MP_FIXED_LIT":// **Stephen: Added FIXED_LIT
-
             case "MP_FLOAT_LIT":
+            case "MP_FIXED_LIT":
+                
+            case "MP_NOT":					// No sign for true, false, not..
+            case "MP_TRUE":
+            case "P_FALSE":
             case "MP_STRING_LIT":
-            case "MP_LPAREN":
-            case "MP_MINUS":
-            case "MP_PLUS":
                 System.out.println(" (#82)"); // Rule #82
                 optionalSign(signRec);
                 term(termRec, signRec);
@@ -1620,24 +1630,28 @@ public class NonTerminals {
             case "MP_IDENTIFIER":
 
                 System.out.println(" (#106)"); // Rule #106
-                functionIdentifier();
-                Row funcOrVar = symTab.findVariable(lastID);//we need to know if the id we grabbed is for a variable or for a function call
-
+                
+                Row funcOrVar = symTab.findVariable(LATok.getLexeme());//we need to know if the id we grabbed is for a variable or for a function call
+                //System.out.println(LATok.getLexeme());
+                
+               // System.out.println(funcOrVar.getKind());
+               
                 if (funcOrVar == null) {
                     syntaxError();//if it doesn't come back right, the identifier isn't in a symbol table
-                }
-                if (funcOrVar.getKind().equals("function")) {//if it's function call
-
+                }else if(funcOrVar.getKind().equals("var") || funcOrVar.getKind().equals("param")) {
+                    //System.out.println(" is it here?");
+                    variableIdentifier(factorRec);
+                    analyzer.genPushId(factorRec, signRec);
+                } else if (funcOrVar.getKind().equals("function") || (funcOrVar.getKind().equals("retVar")))  {
+                    Token funcIdRec = new Token();
+                    
+                    functionIdentifier();
                     optionalActualParameterList();//fill the list
-
-                } else if (funcOrVar.getKind().equals("retVar")) {//if it's a recursive function call, the type that will come back is the returnVariable type
-
-                    optionalActualParameterList();
-
-                } else {// if the identifier is just a normal variable
-                    //this was useed for semantic analyzer calls at the A level
-                    //Feel free to get rid of it if you really like
                 }
+                // } else if ) {//if it's a recursive function call, the type that will come back is the returnVariable type
+                // optionalActualParameterList();
+
+
                 break;
             default:
                 syntaxError();
@@ -1663,13 +1677,18 @@ public class NonTerminals {
         indent--;
     }
 
-    public static void variableIdentifier() {
+    public static void variableIdentifier(Token idRecord) {
         if (PRINT_PARSE_TREE) {
             System.out.printf("" + String.format("%1$" + LAPad + "s", Lookahead) + " ->" + String.format("%1$" + (indent++ * 2 + 1) + "s", "")
                     + "VariableIdentifier");
         }
         switch (Lookahead) {
             case "MP_IDENTIFIER":
+                idRecord.lexeme = LATok.getLexeme();
+                Row actualParam = symTab.findVariable(LATok.getLexeme());
+
+                idRecord.setType(actualParam.getType());
+
                 System.out.println(" (#108)"); // Rule #108
                 match("MP_IDENTIFIER");
                 break;
