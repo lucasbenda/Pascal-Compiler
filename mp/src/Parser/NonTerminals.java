@@ -56,11 +56,10 @@ public class NonTerminals {
         System.exit(1);
         return;
     }
-    
+
     /*
      * These two procedure will add a "call" entry to their parent symbol tables
      */
-
     private static void addProcedureToParent(SymbolTable myTable) {
 
         String paramList = myTable.getParameters();
@@ -601,9 +600,9 @@ public class NonTerminals {
             case "MP_IDENTIFIER":
                 // **Stephen: Not a complete workaround.  We're going to have to find a better way to solve this, or at least do alot more thorough job.   The rule for ProcedureStatement(#67) states that a procedure call can have parameters OPTIONALLY, thus checking for a Lparen wouldnt always be sufficient to cover this case.
                 Token assignVar = new Token();
-                assignVar = LATok;               
+                assignVar = LATok;
                 System.out.println();
-                
+
                 match("MP_IDENTIFIER");//workaround, just match id and move on
                 switch (Lookahead) {
                     case "MP_ASSIGN":
@@ -822,12 +821,12 @@ public class NonTerminals {
             case "MP_FALSE":
             case "MP_NOT":
                 System.out.println(LATok.getLexeme());
-                
+
             case "MP_LPAREN":
             case "MP_IDENTIFIER":
                 System.out.println(" (#53)"); // Rule #53
                 ordinalExpression(new Token());
-                analyzer.genWriteStmt();               
+                analyzer.genWriteStmt();
                 break;
 
             default: // syntaxError OR Empty-String
@@ -844,21 +843,21 @@ public class NonTerminals {
         }
         Token idenRec = new Token();
         Token exprRec = new Token();
-        
+
         Row assignVarRow = symTab.findVariable(assignVar.getLexeme());
         idenRec.setType(assignVarRow.getType());
-        
+
         switch (Lookahead) {
             case "MP_ASSIGN"://both rules are the same
                 System.out.println(" (#54,55)"); // Rule #54,55
                 match("MP_ASSIGN");
-                
+
                 expression(exprRec);
-                
+
                 analyzer.genAssignStmt(idenRec, exprRec);
-                
-                
-                
+
+
+
                 break;
             default: // syntaxError OR Empty-String
                 syntaxError();
@@ -874,11 +873,12 @@ public class NonTerminals {
             System.out.printf("" + String.format("%1$" + LAPad + "s", Lookahead) + " ->" + String.format("%1$" + (indent++ * 2 + 1) + "s", "")
                     + "IfStatement");
         }
+        Token exprRec = new Token();
         switch (Lookahead) {
             case "MP_IF":
                 System.out.println(" (#56)"); // Rule #56
                 match("MP_IF");
-                booleanExpression();
+                booleanExpression(exprRec);
                 match("MP_THEN");
                 statement();
                 optionalElsePart();//pass the name variable to the else statement
@@ -920,13 +920,14 @@ public class NonTerminals {
             System.out.printf("" + String.format("%1$" + LAPad + "s", Lookahead) + " ->" + String.format("%1$" + (indent++ * 2 + 1) + "s", "")
                     + "RepeatStatement");
         }
+        Token exprRec = new Token();
         switch (Lookahead) {
             case "MP_REPEAT":
                 System.out.println(" (#59)"); // Rule #59
                 match("MP_REPEAT");
                 statementSequence();
                 match("MP_UNTIL");
-                booleanExpression();
+                booleanExpression(exprRec);
                 break;
             default: // syntaxError OR Empty-String
                 syntaxError();
@@ -940,12 +941,13 @@ public class NonTerminals {
             System.out.printf("" + String.format("%1$" + LAPad + "s", Lookahead) + " ->" + String.format("%1$" + (indent++ * 2 + 1) + "s", "")
                     + "WhileStatement");
         }
+        Token exprRec = new Token();
         switch (Lookahead) {
             case "MP_WHILE":
                 System.out.println(" (#60)"); // Rule #60
                 match("MP_WHILE");
 
-                booleanExpression();
+                booleanExpression(exprRec);
 
                 match("MP_DO");
                 statement();
@@ -963,6 +965,11 @@ public class NonTerminals {
             System.out.printf("" + String.format("%1$" + LAPad + "s", Lookahead) + " ->" + String.format("%1$" + (indent++ * 2 + 1) + "s", "")
                     + "ForStatement");
         }
+        Token idRec = new Token();
+        Token initialRec = new Token();
+        Token forRec = new Token();		// could use boolean, but this is more clear
+        Token finalRec = new Token();
+
         switch (Lookahead) {
             case "MP_FOR":
                 System.out.println(" (#61)"); // Rule #61
@@ -970,12 +977,12 @@ public class NonTerminals {
                 controlVariable();
 
                 match("MP_ASSIGN");
-                initialValue();
+                initialValue(initialRec);
 
                 stepValue();
 
 
-                finalValue();//final value will naturally be on the top of the stack
+                finalValue(finalRec);//final value will naturally be on the top of the stack
                 //semAn.branch(forLoopExit, "equals");//check to see if they are equal, and branch if they are
 
                 match("MP_DO");
@@ -1185,7 +1192,8 @@ public class NonTerminals {
             case "MP_LPAREN":
             case "MP_IDENTIFIER":
                 System.out.println(" (#72)"); // Rule #72
-                ordinalExpression();
+                Token actualParRec = new Token();
+                ordinalExpression(actualParRec);
                 break;
             default:
                 syntaxError();
@@ -1302,7 +1310,7 @@ public class NonTerminals {
         Token termRec = new Token();
         Token termTailRec = new Token();
         Token signRec = new Token();
-        
+
         switch (Lookahead) {
             case "MP_FALSE":
             case "MP_NOT":
@@ -1310,7 +1318,7 @@ public class NonTerminals {
             case "MP_IDENTIFIER":
             case "MP_INTEGER_LIT":
             case "MP_FIXED_LIT":// **Stephen: Added FIXED_LIT
-                
+
             case "MP_FLOAT_LIT":
             case "MP_STRING_LIT":
             case "MP_LPAREN":
@@ -1338,7 +1346,7 @@ public class NonTerminals {
         Token rightSideRec = new Token();
         Token operatorRec = new Token();
         Token resultRec = new Token();
-        
+
         switch (Lookahead) {
             case "MP_PLUS":
             case "MP_MINUS":
@@ -1375,7 +1383,7 @@ public class NonTerminals {
         indent--;
     }
 
-    public static void optionalSign() {
+    public static void optionalSign(Token signRec) {
         if (PRINT_PARSE_TREE) {
             System.out.printf("" + String.format("%1$" + LAPad + "s", Lookahead) + " ->" + String.format("%1$" + (indent++ * 2 + 1) + "s", "")
                     + "OptionalSign");
@@ -1389,6 +1397,7 @@ public class NonTerminals {
             case "MP_MINUS":
                 System.out.println(" (#86)"); // Rule #86
                 match("MP_MINUS");
+                signRec.negative = true;
                 break;
             case "MP_FALSE":
             case "MP_NOT":
@@ -1408,11 +1417,12 @@ public class NonTerminals {
         indent--;
     }
 
-    public static void addingOperator() {
+    public static void addingOperator(Token operatorRec) {
         if (PRINT_PARSE_TREE) {
             System.out.printf("" + String.format("%1$" + LAPad + "s", Lookahead) + " ->" + String.format("%1$" + (indent++ * 2 + 1) + "s", "")
                     + "AddingOperator");
         }
+        operatorRec.lexeme = LATok.getLexeme();
         switch (Lookahead) {
             case "MP_PLUS":
                 System.out.println(" (#88)"); // Rule #88
@@ -1433,7 +1443,7 @@ public class NonTerminals {
         indent--;
     }
 
-    public static void term() {
+    public static void term(Token termRec, Token signRec) {
         if (PRINT_PARSE_TREE) {
             System.out.printf("" + String.format("%1$" + LAPad + "s", Lookahead) + " ->" + String.format("%1$" + (indent++ * 2 + 1) + "s", "")
                     + "Term");
@@ -1449,8 +1459,8 @@ public class NonTerminals {
             case "MP_STRING_LIT":
             case "MP_LPAREN":
                 System.out.println(" (#91)"); // Rule #91
-                factor();
-                factorTail();
+                factor(termRec, signRec);
+                factorTail(termRec);
                 break;
             default:
                 syntaxError();
@@ -1458,11 +1468,15 @@ public class NonTerminals {
         indent--;
     }
 
-    public static void factorTail() {
+    public static void factorTail(Token leftSideRec) {
         if (PRINT_PARSE_TREE) {
             System.out.printf("" + String.format("%1$" + LAPad + "s", Lookahead) + " ->" + String.format("%1$" + (indent++ * 2 + 1) + "s", "")
                     + "FactorTail");
         }
+        Token rightSideRec = new Token();
+        Token operatorRec = new Token();
+        Token resultRec = new Token();
+
         switch (Lookahead) {
             case "MP_DO":
             case "MP_DOWNTO":
@@ -1492,9 +1506,11 @@ public class NonTerminals {
             case "MP_DIV":
             case "MP_MOD":
                 System.out.println(" (#92)"); // Rule #92
-                multiplyingOperator();
-                factor();
-                factorTail();
+                multiplyingOperator(operatorRec);
+                factor(rightSideRec, new Token());
+                analyzer.genArithmetic(leftSideRec, operatorRec, rightSideRec, resultRec);
+                factorTail(resultRec);
+                analyzer.copy(resultRec, leftSideRec);
                 break;
             default:
                 syntaxError(); // **Stephen: This used to be emptyStatement(), is that right?
@@ -1503,11 +1519,13 @@ public class NonTerminals {
         indent--;
     }
 
-    public static void multiplyingOperator() {
+    public static void multiplyingOperator(Token operatorRec) {
         if (PRINT_PARSE_TREE) {
             System.out.printf("" + String.format("%1$" + LAPad + "s", Lookahead) + " ->" + String.format("%1$" + (indent++ * 2 + 1) + "s", "")
                     + "MultiplyingOperator");
         }
+        operatorRec.lexeme = LATok.getLexeme();
+
         switch (Lookahead) {
             case "MP_TIMES":
                 System.out.println(" (#94)"); // Rule #94
@@ -1550,37 +1568,57 @@ public class NonTerminals {
                 match("MP_INTEGER_LIT");
                 break;
             case "MP_FLOAT_LIT":
+                factorRec.setType("float");
+                factorRec.lexeme = LATok.getLexeme();
+                analyzer.genPushLiteral(factorRec, signRec);
                 System.out.println(" (#100)"); // Rule #100
                 match("MP_FLOAT_LIT");
                 break;
             case "MP_FIXED_LIT":// **Stephen: Added FIXED_LIT
+                factorRec.setType("float");
+                factorRec.lexeme = LATok.getLexeme();
+                analyzer.genPushLiteral(factorRec, signRec);
                 System.out.println(" (#100)"); // Rule #100
                 match("MP_FIXED_LIT");
                 break;
             case "MP_STRING_LIT":
+                factorRec.setType("string");
+                factorRec.lexeme = LATok.getLexeme();
+                analyzer.genPushLiteral(factorRec, new Token());
                 System.out.println(" (#101)"); // Rule #101
                 match("MP_STRING_LIT");
                 break;
             case "MP_TRUE":
+                factorRec.setType("boolean");
+                factorRec.lexeme = LATok.getLexeme();
+                analyzer.genPushBoolLit(factorRec);
                 System.out.println(" (#102)"); // Rule #102
                 match("MP_TRUE");
                 break;
             case "MP_FALSE":
+                factorRec.setType("boolean");
+                factorRec.lexeme = LATok.getLexeme();
+                analyzer.genPushBoolLit(factorRec);
                 System.out.println(" (#103)"); // Rule #103
                 match("MP_FALSE");
                 break;
             case "MP_NOT":
                 System.out.println(" (#104)"); // Rule #104
                 match("MP_NOT");
-                factor();
+                factor(factorRec, new Token());
+                analyzer.genNotOp(factorRec);
                 break;
             case "MP_LPAREN":
                 System.out.println(" (#105)"); // Rule #105
                 match("MP_LPAREN");
-                expression();
+                expression(factorRec);
                 match("MP_RPAREN");
+                if (signRec.negative) {
+                    analyzer.genNegOp(factorRec);
+                }
                 break;
             case "MP_IDENTIFIER":
+
                 System.out.println(" (#106)"); // Rule #106
                 functionIdentifier();
                 Row funcOrVar = symTab.findVariable(lastID);//we need to know if the id we grabbed is for a variable or for a function call

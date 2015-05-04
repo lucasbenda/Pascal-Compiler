@@ -231,16 +231,16 @@ public class Analysis {
 
     public void genPushLiteral(Token literalRec, Token signRec) {
         String literal;
-        if(literalRec.getType().equals("string")){
+        if (literalRec.getType().equals("string")) {
             literal = "\"" + literalRec.lexeme + "\"";
         } else {
             literal = literalRec.lexeme;
         }
-            //String literal = literalRec.getType() == Symbol.Type.STRING ? "\"" + literalRec.lexeme + "\"" : literalRec.lexeme;
-            if (signRec.negative) {
-                literal = "-" + literal;
-            }
-            output.append("push #" + literal + "\n");	// Push primitive literal       
+        //String literal = literalRec.getType() == Symbol.Type.STRING ? "\"" + literalRec.lexeme + "\"" : literalRec.lexeme;
+        if (signRec.negative) {
+            literal = "-" + literal;
+        }
+        output.append("push #" + literal + "\n");	// Push primitive literal       
     }
 
     public void genPushId(Token idRec, Token signRec) {
@@ -262,6 +262,55 @@ public class Analysis {
         }
     }
 
+    public void genPushBoolLit(Token boolLit) {
+        String bool;
+        if (boolLit.lexeme.equalsIgnoreCase("true")) {
+            bool = "1";
+        } else {
+            bool = "0";
+        }
+        output.append("push #" + bool + "\n");
+
+    }
+
+    public void genNotOp(Token factorRec) {
+        if (factorRec.getType().equals("boolean")) {
+            output.append("nots\n");
+        } else {
+            this.semanticError("'not' used for non-boolean expression type");
+        }
+    }
+
+    public void genNegOp(Token factorRec) {
+        if (factorRec.getType().equals("float") || factorRec.getType().equals("integet")) {
+            String negOp;
+            if (factorRec.getType().equals("float")) {
+                negOp = "negsf\n";
+            } else {
+                negOp = "negs\n";
+            }
+            output.append(negOp);	// negate top of stack
+        } else {
+            this.semanticError("'-' used for non-numeric expression type");
+        }
+    }
+
+    public void copy(Token existing, Token copy) {
+        copy.setType(existing.getType());
+        copy.lexeme = existing.lexeme;
+    }
+
+    /*
+     * not sure if this will be needed yet
+     */
+    public void rowToToken(Row in, Token out){
+        out.setKind(in.getKind());
+        out.setType(in.getKind());
+        out.lexeme = in.getID();
+        
+                
+        
+    }
     private void semanticError(String errorMsg) {
         parser.semanticError(errorMsg);
         error = true;
