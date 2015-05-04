@@ -295,6 +295,14 @@ public class Analysis {
         }
     }
 
+//    public void genCallSetup(Token funProcSym) {
+//        if (funProcSym.getKind().equals("function")) {
+//            output.append("add SP #" + Symbol.Type.INTEGER.size + " SP ; return value\n");// save space for return value for functions
+//        }
+//        output.append("add SP #" + Symbol.Type.INTEGER.size + " SP ; display register\n");	// save space for callee's display register
+//        // parameters are pushed (in order) by expression
+//    }
+
     public void copy(Token existing, Token copy) {
         copy.setType(existing.getType());
         copy.lexeme = existing.lexeme;
@@ -303,16 +311,16 @@ public class Analysis {
     /*
      * not sure if this will be needed yet
      */
-    public void rowToToken(Row in, Token out){
+    public void rowToToken(Row in, Token out) {
         out.setKind(in.getKind());
         out.setType(in.getKind());
         out.lexeme = in.getID();
-        
-                
-        
+
+
+
     }
+
     private void semanticError(String errorMsg) {
-        parser.semanticError(errorMsg);
-        error = true;
+        System.out.println(errorMsg);
     }
 }
