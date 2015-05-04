@@ -12,6 +12,7 @@ public class Token {
     protected int colNum;
     protected String type;
     protected String kind;
+    public boolean negative = false;
     
     public Token(String in_lex, String in_token, int lnum, int colnum){
         lexeme = in_lex;
