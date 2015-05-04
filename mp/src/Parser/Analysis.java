@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Parser;
 
 import SymbolTable.*;
@@ -10,7 +5,7 @@ import Tokenizer.Token;
 
 /**
  *
- * @author Erigon
+ * @author All the groups
  */
 public class Analysis {
 
@@ -52,8 +47,7 @@ public class Analysis {
         }
 
     }
-    
-    
+
     public void genArithmetic(Token leftRec, Token opRec, Token rightRec, Token resultRec) {
         String operation = null;
         boolean integerDiv = false,
@@ -79,7 +73,7 @@ public class Analysis {
                 operation = "divs";	// 'f' added below
                 break;
             case "mod":
-                if (leftRec.getType().equals("float")  || rightRec.getType().equals("float")) {
+                if (leftRec.getType().equals("float") || rightRec.getType().equals("float")) {
                     semanticError("Modulo operator cannot be applied to float type");
                 }
                 operation = "mods";
@@ -111,7 +105,7 @@ public class Analysis {
                 relOp = true;
                 break;
             case "and":
-                if (!leftRec.getType().equals("boolean")|| !rightRec.getType().equals("boolean")) {
+                if (!leftRec.getType().equals("boolean") || !rightRec.getType().equals("boolean")) {
                     semanticError("Logical operations not allowed on non-boolean types");
                 }
                 operation = "ands";
@@ -131,13 +125,13 @@ public class Analysis {
         } // disallow arithmetic/compare operations on boolean and string types
         else if (!leftRec.getType().equals("boolean") && !leftRec.getType().equals("string")) {
             if (leftRec.getType().equals(rightRec.getType())) {
-                
-                if(relOp){
+
+                if (relOp) {
                     resultRec.setType("boolean");
                 } else {
                     resultRec.setType(leftRec.getType());
                 }
-                 // Check for integer division operator on floats
+                // Check for integer division operator on floats
                 if (leftRec.getType().equals("float")) {
                     if (integerDiv) {
                         // I'm not sure exactly what the semantics are for int division
@@ -150,7 +144,7 @@ public class Analysis {
                         operation = operation + "f";	// use float operation if LHS and RHS both float
                     }
                 } // Check for float division operator on integers
-                else if (leftRec.getType().equals("integer")&& floatDiv) {
+                else if (leftRec.getType().equals("integer") && floatDiv) {
                     output.append("castsf\n");	// cast RHS to float
                     genCastLeftHandSide("float");	// cast LHS to float
                     resultRec.setType("float");	// set expression result to float
@@ -159,12 +153,12 @@ public class Analysis {
                 output.append(operation + "\n");
             } // Stack top needs to be casted to float:
             else if (leftRec.getType().equals("float") && rightRec.getType().equals("integer")) {
-                if(relOp){
-                     resultRec.setType("boolean");
+                if (relOp) {
+                    resultRec.setType("boolean");
                 } else {
-                     resultRec.setType("float");
+                    resultRec.setType("float");
                 }
-                
+
                 // unless integer div, then cast LHS to integer
                 if (integerDiv) {
                     genCastLeftHandSide("integer"); // cast LHS to integer
@@ -176,12 +170,12 @@ public class Analysis {
                 output.append(operation + "\n");
             } // Second in from top of stack needs to be casted to float:
             else if (leftRec.getType().equals("integer") && rightRec.getType().equals("float")) {
-                if(relOp){
-                     resultRec.setType("boolean");
+                if (relOp) {
+                    resultRec.setType("boolean");
                 } else {
-                     resultRec.setType("float");
+                    resultRec.setType("float");
                 }
-                
+
                 // unless integer div, then cast RHS to integer
                 if (integerDiv) {
                     output.append("castsi\n");	// cast RHS to integer
@@ -203,35 +197,51 @@ public class Analysis {
      * Genderates the code for the assignemnt statements
      */
     public void genAssignStmt(Token id, Token expr) {
-		if(id.getType().equals("float") && expr.getType().equals("integer")) {
-			output.append("castsf\n");	// cast expression result (stack top) to float to assign to id
-		}
-		else if(id.getType().equals("integet") && expr.getType().equals("float")) {
-			output.append("castsi\n");	// cast expression result to integer to assign to id
-		}
-		else if(!id.getType().equals(expr.getType()))
-			this.semanticError("Incompatible types encountered for assignement statement: " + id.getType() + " := " + expr.getType());
-		Row var = NonTerminals.symTab.findVariable(id.getLexeme());
+        if (id.getType().equals("float") && expr.getType().equals("integer")) {
+            output.append("castsf\n");	// cast expression result (stack top) to float to assign to id
+        } else if (id.getType().equals("integet") && expr.getType().equals("float")) {
+            output.append("castsi\n");	// cast expression result to integer to assign to id
+        } else if (!id.getType().equals(expr.getType())) {
+            this.semanticError("Incompatible types encountered for assignement statement: " + id.getType() + " := " + expr.getType());
+        }
+        Row var = NonTerminals.symTab.findVariable(id.getLexeme());
 		//String dereference = var.mode == Symbol.ParameterMode.REFERENCE ? "@" : "";
-		// assuming parser will catch undeclared id's so no need to null check
-		output.append("pop " + " " + var.getOffset() + "(D" + var.getNestingLevel() + ")\n" );
-	}
-    
-    
+        // assuming parser will catch undeclared id's so no need to null check
+        output.append("pop " + " " + var.getOffset() + "(D" + var.getNestingLevel() + ")\n");
+    }
+
     private void genCastLeftHandSide(String type) {
-	String castOp;
-        if(type.equals("float")){
+        String castOp;
+        if (type.equals("float")) {
             castOp = "castsf\n";
         } else {
             castOp = "castsi\n";
         }
-        
-		output.append("push -2(SP)\n");		// Push value below value on top of stack
-		output.append(castOp);				// cast value
-		output.append("pop -2(SP)\n");		// then put it back where it was
-	}
-    
-    
+
+        output.append("push -2(SP)\n");		// Push value below value on top of stack
+        output.append(castOp);				// cast value
+        output.append("pop -2(SP)\n");		// then put it back where it was
+    }
+
+    public void genPushId(Token idRec, Token signRec) {
+        Row var = NonTerminals.symTab.findVariable(idRec.getLexeme());
+        if (mode == Symbol.ParameterMode.REFERENCE && var.mode == Symbol.ParameterMode.REFERENCE) {
+			// if a reference mode formal parameter is used as an actual reference mode parameter 
+            // in a function call inside of a function, we have already calculated its address 
+            output.append("push " + var.offset + "(D" + var.nestLevel + ")\n");
+        } else if (mode == Symbol.ParameterMode.REFERENCE) {
+            output.append("push D" + var.getNestingLevel() + "\n");
+            output.append("push #" + var.getOffset() + "\n");
+            output.append("adds\n");	// calculate variable address
+        } else {
+            String dereference = var.mode == Symbol.ParameterMode.REFERENCE ? "@" : "";	// if ref mode, dereference
+            output.append("push " + dereference + var.offset + "(D" + var.nestLevel + ")\n");
+            if (signRec.negative) {
+                this.genNegOp(idRec);
+            }
+        }
+    }
+
     private void semanticError(String errorMsg) {
         parser.semanticError(errorMsg);
         error = true;
