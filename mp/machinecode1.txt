@@ -1,0 +1,131 @@
+MOV SP D0
+ADD SP #7 SP
+push #"'This is test 7 of level C'"
+wrts
+wrtln #""
+push #"'This will further test reading and math'"
+wrts
+wrtln #""
+push #"''"
+wrts
+wrtln #""
+push #"'Please enter 2 integers'"
+pop  1(D0)
+push #"''"
+wrts
+push  1(D0)
+wrts
+push #"''"
+wrts
+push #"''"
+wrts
+push #"''"
+wrts
+push #"''"
+wrts
+wrtln #""
+rd  2(D0)
+rd  3(D0)
+push  2(D0)
+wrts
+push #"' * '"
+wrts
+push  3(D0)
+wrts
+push #"' = '"
+wrts
+push  2(D0)
+push  3(D0)
+muls
+wrts
+wrtln #""
+push #"''"
+wrts
+wrtln #""
+push #"'Please enter 2 floats'"
+pop  1(D0)
+push #"''"
+wrts
+push #"''"
+wrts
+push #"''"
+wrts
+push #"''"
+wrts
+push #"''"
+wrts
+push #"''"
+wrts
+push  1(D0)
+wrts
+wrtln #""
+rdf  5(D0)
+rdf  6(D0)
+push  5(D0)
+wrts
+push #"' * '"
+wrts
+push  6(D0)
+wrts
+push #"' = '"
+wrts
+push  5(D0)
+push  6(D0)
+mulsf
+wrts
+wrtln #""
+push #"''"
+wrts
+wrtln #""
+push #"'Now to double your first flaot and integer'"
+wrts
+wrtln #""
+push  5(D0)
+push  5(D0)
+mulsf
+pop  5(D0)
+push  2(D0)
+push  2(D0)
+muls
+pop  2(D0)
+push  5(D0)
+wrts
+push #"' and '"
+wrts
+push  2(D0)
+wrts
+wrtln #""
+push #"''"
+wrts
+wrtln #""
+push #"'Now to increase your second integer by your second float and vice versa'"
+wrts
+push #"' (should come out the same value)'"
+wrts
+wrtln #""
+push  3(D0)
+push  6(D0)
+push -2(SP)
+castsf
+pop -2(SP)
+mulsf
+Incompatible types encountered for assignement statement: integer := floatpop  2(D0)
+push  3(D0)
+push  6(D0)
+push -2(SP)
+castsf
+pop -2(SP)
+mulsf
+pop  6(D0)
+push  2(D0)
+pop  3(D0)
+push  6(D0)
+wrts
+push #"' and '"
+wrts
+push  3(D0)
+wrts
+push #"''"
+wrts
+wrtln #""
+HLT

@@ -16,7 +16,7 @@ public class Analysis {
     int stackSize;
     
     public Analysis() throws FileNotFoundException {     
-        this.output = new PrintStream(new File("machinecode.txt"));
+        this.output = new PrintStream(new File("machinecode1.txt"));
         stackSize = 0;
 
     }
@@ -37,7 +37,7 @@ public class Analysis {
      * Pushes machine code for newline
      */
     public void genWriteLnStmt() {
-        output.append("wrtln #\'\'\n");
+        output.append("wrtln #\"\"\n");
     }
 
     /*
@@ -60,6 +60,9 @@ public class Analysis {
                         break;
                     case "string":
                         rdOp = "rds ";
+                        break;
+                    case "boolean":
+                        rdOp = "rd";
                         break;
                     default:
 
@@ -284,7 +287,7 @@ public class Analysis {
 
     public void genNotOp(Token factorRec) {
         if (factorRec.getType().equals("boolean")) {
-            output.append("nots\n");
+            output.append("NOTS\n");
         } else {
             this.semanticError("'not' used for non-boolean expression type");
         }
@@ -325,12 +328,12 @@ public class Analysis {
     }
 
     public void beginProgDec(){
-        output.append("mov SP D" + NonTerminals.symTab.getNestingLevel() + " SP\n");
-        output.append("add SP " + NonTerminals.symTab.getSize() + " SP\n");
+        output.append("MOV SP D" + NonTerminals.symTab.getNestingLevel() + "\n");
+        output.append("ADD SP #" + NonTerminals.symTab.getSize() + " SP\n");
         
     }
     public void endProgDec(){
-        output.append("hlt\n");
+        output.append("HLT\n");
     }
     
 
