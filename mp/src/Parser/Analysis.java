@@ -6,10 +6,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 
-/**
- *
- * @author All the groups
- */
 public class Analysis {
 
     PrintStream output;
@@ -68,9 +64,7 @@ public class Analysis {
 
                         break;
                 }
-                //String dereference = var.mode == Symbol.ParameterMode.REFERENCE ? "@" : "";
                 output.append(rdOp + " " + var.offset + "(D" + var.nestingLevel + ")\n");
-                //output.append(paramRec.getLexeme() + "\n");
             }
         }
 
@@ -81,7 +75,7 @@ public class Analysis {
         boolean integerDiv = false,
                 floatDiv = false,
                 booleanOp = false,
-                relOp = false;		// if relational op, set resulting type to boolean
+                relOp = false;		
         switch (opRec.lexeme.toLowerCase()) {
             case "+":
                 operation = "adds";
@@ -108,7 +102,7 @@ public class Analysis {
                 break;
             case "=":
                 operation = "cmpeqs";
-                booleanOp = true;	// = allowed for booleans
+                booleanOp = true;	
                 relOp = true;
                 break;
             case ">=":
@@ -129,7 +123,7 @@ public class Analysis {
                 break;
             case "<>":
                 operation = "cmpnes";
-                booleanOp = true;	// <> allowed for booleans
+                booleanOp = true;	
                 relOp = true;
                 break;
             case "and":
@@ -150,7 +144,7 @@ public class Analysis {
         if (booleanOp && leftRec.getType().equals("boolean") && rightRec.getType().equals("boolean")) {
             output.append(operation + "\n");
             resultRec.setType(leftRec.getType());
-        } // disallow arithmetic/compare operations on boolean and string types
+        } 
         else if (!leftRec.getType().equals("boolean") && !leftRec.getType().equals("string")) {
             if (leftRec.getType().equals(rightRec.getType())) {
 
@@ -159,27 +153,24 @@ public class Analysis {
                 } else {
                     resultRec.setType(leftRec.getType());
                 }
-                // Check for integer division operator on floats
                 if (leftRec.getType().equals("float")) {
                     if (integerDiv) {
-                        // I'm not sure exactly what the semantics are for int division
-                        // on floats, I assume you just truncate values, then divide
-                        output.append("castsi\n");	// cast RHS to integer
-                        genCastLeftHandSide("integer");	// cast LHS to integer
-                        resultRec.setType("integer");	// set expression result to integer
+                        output.append("castsi\n");	
+                        genCastLeftHandSide("integer");	
+                        resultRec.setType("integer");	
                     } else // not integer div
                     {
                         operation = operation + "f";	// use float operation if LHS and RHS both float
                     }
-                } // Check for float division operator on integers
+                }
                 else if (leftRec.getType().equals("integer") && floatDiv) {
-                    output.append("castsf\n");	// cast RHS to float
-                    genCastLeftHandSide("float");	// cast LHS to float
-                    resultRec.setType("float");	// set expression result to float
-                    operation = operation + "f";	// use float operation
+                    output.append("castsf\n");	
+                    genCastLeftHandSide("float");
+                    resultRec.setType("float");
+                    operation = operation + "f";
                 }
                 output.append(operation + "\n");
-            } // Stack top needs to be casted to float:
+            } 
             else if (leftRec.getType().equals("float") && rightRec.getType().equals("integer")) {
                 if (relOp) {
                     resultRec.setType("boolean");
@@ -187,16 +178,15 @@ public class Analysis {
                     resultRec.setType("float");
                 }
 
-                // unless integer div, then cast LHS to integer
                 if (integerDiv) {
-                    genCastLeftHandSide("integer"); // cast LHS to integer
-                    resultRec.setType("integer");	// set expression result to integer
-                } else { // not integer div
-                    output.append("castsf\n");	// cast RHS to float
-                    operation = operation + "f";// use float operation
+                    genCastLeftHandSide("integer");
+                    resultRec.setType("integer");	
+                } else { 
+                    output.append("castsf\n");	
+                    operation = operation + "f";
                 }
                 output.append(operation + "\n");
-            } // Second in from top of stack needs to be casted to float:
+            } 
             else if (leftRec.getType().equals("integer") && rightRec.getType().equals("float")) {
                 if (relOp) {
                     resultRec.setType("boolean");
@@ -204,13 +194,12 @@ public class Analysis {
                     resultRec.setType("float");
                 }
 
-                // unless integer div, then cast RHS to integer
                 if (integerDiv) {
-                    output.append("castsi\n");	// cast RHS to integer
-                    resultRec.setType("integer"); // set expression result to integer
-                } else { // not integer div
-                    genCastLeftHandSide("float");	// cast LHS to float
-                    operation = operation + "f";	// use float operation
+                    output.append("castsi\n");	
+                    resultRec.setType("integer");
+                } else { 
+                    genCastLeftHandSide("float");
+                    operation = operation + "f";
                 }
                 output.append(operation + "\n");
             } else if (!leftRec.getType().equals(rightRec.getType())) {
@@ -226,15 +215,13 @@ public class Analysis {
      */
     public void genAssignStmt(Token id, Token expr) {
         if (id.getType().equals("float") && expr.getType().equals("integer")) {
-            output.append("castsf\n");	// cast expression result (stack top) to float to assign to id
+            output.append("castsf\n");	
         } else if (id.getType().equals("integet") && expr.getType().equals("float")) {
-            output.append("castsi\n");	// cast expression result to integer to assign to id
+            output.append("castsi\n");	
         } else if (!id.getType().equals(expr.getType())) {
             this.semanticError("Incompatible types encountered for assignement statement: " + id.getType() + " := " + expr.getType());
         }
         Row var = NonTerminals.symTab.findVariable(id.getLexeme());
-        //String dereference = var.mode == Symbol.ParameterMode.REFERENCE ? "@" : "";
-        // assuming parser will catch undeclared id's so no need to null check
         output.append("pop " + " " + var.getOffset() + "(D" + var.getNestingLevel() + ")\n");
     }
 
@@ -246,9 +233,9 @@ public class Analysis {
             castOp = "castsi\n";
         }
 
-        output.append("push -2(SP)\n");		// Push value below value on top of stack
-        output.append(castOp);				// cast value
-        output.append("pop -2(SP)\n");		// then put it back where it was
+        output.append("push -2(SP)\n");	
+        output.append(castOp);				
+        output.append("pop -2(SP)\n");		
     }
 
     public void genPushLiteral(Token literalRec, Token signRec) {
@@ -261,7 +248,7 @@ public class Analysis {
         if (signRec.negative) {
             literal = "-" + literal;
         }
-        output.append("push #" + literal + "\n");	// Push primitive literal       
+        output.append("push #" + literal + "\n");	
     }
 
     public void genPushId(Token idRec, Token signRec) {
@@ -270,7 +257,7 @@ public class Analysis {
         output.append("push " + " " + var.getOffset() + "(D" + var.getNestingLevel() + ")\n");
         if (signRec.negative) {
             this.genNegOp(idRec);
-            //}
+            
         }
     }
 
@@ -301,7 +288,7 @@ public class Analysis {
             } else {
                 negOp = "negs\n";
             }
-            output.append(negOp);	// negate top of stack
+            output.append(negOp);	
         } else {
             this.semanticError("'-' used for non-numeric expression type");
         }
